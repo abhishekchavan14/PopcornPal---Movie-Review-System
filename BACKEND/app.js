@@ -13,7 +13,7 @@ app.use('/api/user', userRouter)
 
 //.listen will listen when the connection of the backend to the port 8000 is made
 app.listen(8000, () => {
-    console.log("This is amazing");
+    console.log("Listening on port 8000...");
 });
 
 

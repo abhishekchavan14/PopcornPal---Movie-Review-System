@@ -1,6 +1,7 @@
 const nodemailer = require("nodemailer")
 const User = require('../models/user')
 const EmailVerificationToken = require('../models/emailVerificationToken')
+const PasswordResetToken = require('../models/passwordResetToken')
 const { isValidObjectId } = require("mongoose")
 
 //using async await for saving the data to DB
@@ -117,4 +118,50 @@ const verifyEmail = async (req, res) => {
 }
 
 
-module.exports = { create, verifyEmail }
+//For reseting the password
+const forgetPassword = async (req, res) => {
+
+    //checking if the user exists in our DB or not
+    const { email } = req.body;
+    const user = await User.findOne({ email })
+    if (!user) { return res.status(404).json({ error: 'User not found!' }) }
+
+    //if user has already requested for password reset
+    const alreadyHasToken = await PasswordResetToken.findOne({ ownerID: user._id })
+    if (alreadyHasToken) { return res.status(401).json({ error: 'Requests can be made only after a gap of 1 hour.' }) }
+
+    //now to send a token for verifying the user to allow reset
+    let token = ''
+    for (let i = 0; i < 6; i++) {
+        const randomVal = Math.round(Math.random() * 9)
+        token += randomVal
+    }
+    //saving the token in our DB
+    const newPasswordResetToken = await PasswordResetToken({ ownerID: user._id, token: token })
+    await newPasswordResetToken.save()
+
+    //sending a link via mail to user for reseting the password
+    const resetPasswordURL = `http://localhost:3000/reset-password?token=${token}&id=${user._id}`
+    var transport = nodemailer.createTransport({
+        host: "sandbox.smtp.mailtrap.io",
+        port: 2525,
+        auth: {
+            user: "73aefe65003d1d",
+            pass: "f0f387629fe316"
+        }
+    });
+
+    transport.sendMail({
+        from: 'security@popcornpal.in',
+        to: user.email,
+        subject: 'Your Password Reset Link',
+        html: `
+            <h4>Pal at your rescue💪⛑️</h4>
+            <a href='${resetPasswordURL}'>Click here</a><span> to reset your password.</span>
+        `
+    })
+
+    res.status(201).json({ message: 'Link sent to your mail!' })
+}
+
+module.exports = { create, verifyEmail, forgetPassword}
