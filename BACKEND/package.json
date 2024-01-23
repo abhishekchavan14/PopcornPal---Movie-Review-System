@@ -1,0 +1,21 @@
+{
+  "name": "review_backend_api",
+  "version": "1.0.0",
+  "description": "This is the Backend for our Movie Rating App",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon app.js"
+  },
+  "author": "Abhishek and Mangesh",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "express": "^4.18.2",
+    "express-validator": "^7.0.1",
+    "mongoose": "^8.0.4",
+    "nodemailer": "^6.9.8"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}
