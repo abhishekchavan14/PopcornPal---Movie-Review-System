@@ -16,6 +16,6 @@ exports.isValidPassResetToken = async (req,res,next) => {
     if(!matched) {return res.status(401).json({error: 'Invalid access!'})}
 
     //if token is valid and matched
-    // req.resetToken = resetToken --> idk why to do this?
+    req.resetToken = resetToken 
     next()
 }

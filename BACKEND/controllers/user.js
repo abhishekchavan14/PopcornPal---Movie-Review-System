@@ -3,6 +3,7 @@ const User = require('../models/user')
 const EmailVerificationToken = require('../models/emailVerificationToken')
 const PasswordResetToken = require('../models/passwordResetToken')
 const { isValidObjectId } = require("mongoose")
+const passwordResetToken = require("../models/passwordResetToken")
 
 //using async await for saving the data to DB
 const create = async (req, res) => {
@@ -164,4 +165,44 @@ const forgetPassword = async (req, res) => {
     res.status(201).json({ message: 'Link sent to your mail!' })
 }
 
-module.exports = { create, verifyEmail, forgetPassword}
+
+//function to change the password in the DB
+const resetPassword = async (req,res) => {
+    const {newPassword, userID} = req.body
+    const user = await User.findById(userID)
+    
+    //checking if new and old password are same
+    const matched = await user.comparePassword(newPassword)
+    if(matched) {return res.status(401).json({error: 'New password cannot be same as the old one.'})}
+
+    //if not same then changing the password
+    user.password = newPassword
+    await user.save()
+
+    //sending success mail to user
+    var transport = nodemailer.createTransport({
+        host: "sandbox.smtp.mailtrap.io",
+        port: 2525,
+        auth: {
+            user: "73aefe65003d1d",
+            pass: "f0f387629fe316"
+        }
+    });
+
+    transport.sendMail({
+        from: 'security@popcornpal.in',
+        to: user.email,
+        subject: 'Password Reset Successful.',
+        html: `
+            <h4>Your password has been reset.</h4>
+            <h5>Happy Watching...❤️</h5>
+        `
+    })
+    
+    //displaying success message on frontend
+    res.status(201).json({message: 'Password reset successful!'})
+    //after successful reset, delete the token used for verification of password reset
+    await PasswordResetToken.findByIdAndDelete(req.resetToken._id)
+}
+
+module.exports = { create, verifyEmail, forgetPassword, resetPassword}

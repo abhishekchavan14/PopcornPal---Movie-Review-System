@@ -33,6 +33,12 @@ userSchema.pre("save", async function(next){
     next()
 })
 
+//to compare old and new password
+userSchema.methods.comparePassword = async function (password) {
+    const result = await bcrypt.compare(password, this.password)
+    return result
+}
+
 
 //to export this  schema
 // module.exports = userSchema --> this wont work

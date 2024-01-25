@@ -44,3 +44,8 @@ exports.validate = (req, res, next) => {
     e. response is returned and we dont execute next(), if there was no error then we would have moved ahead by executing next()
     f. next() is used commonly in middlewares
 */
+
+//we will use this passwordValidator during reseting the password
+exports.passwordValidator = [
+    check("newPassword").trim().not().isEmpty().withMessage("Password cannot be empty").isLength({ min: 8, max: 20 }).withMessage("Password must be 8 to 20 characters long")
+]

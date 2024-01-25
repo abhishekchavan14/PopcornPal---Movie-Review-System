@@ -1,8 +1,8 @@
 const express = require('express')
-const {validate, userValidator} = require("../middlewares/validator")
+const {validate, userValidator, passwordValidator} = require("../middlewares/validator")
 const {} = require("../middlewares/validator")
 
-const { create, verifyEmail, forgetPassword } = require("../controllers/user")
+const { create, verifyEmail, forgetPassword, resetPassword } = require("../controllers/user")
 
 const{isValidPassResetToken} = require("../middlewares/verifyPasswordResetToken")
 const router = express.Router()
@@ -13,8 +13,11 @@ router.post('/create', userValidator, validate, create) //create is the actual r
 
 router.post('/forget-password', forgetPassword)
 
-router.post('/verify-pass-reset-token', isValidPassResetToken, (req, res) =>{
-    res.json({valid:true})
-}) //isValidPassResetToken is a middleware 
+router.post('/verify-pass-reset-token', isValidPassResetToken, (req, res)=>{
+    res.status(201).json({valid:true})
+}) 
+
+router.post('/reset-password', isValidPassResetToken, passwordValidator, validate, resetPassword)
+//isValidPassResetToken, passwordValidator, validate are middlewares; and resetPassword is the controller 
 
 module.exports = router
