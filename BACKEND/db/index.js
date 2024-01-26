@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 
 //mongoose.connect('mongodb://URI/db_name) URI-uniform resource identifier
-mongoose.connect('mongodb://localhost:27017/review_app')
+mongoose.connect(process.env.MONGO_URI)
     .then(() => {
         console.log("DB is connected...")
     }).catch((err) => {

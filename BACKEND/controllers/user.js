@@ -1,4 +1,5 @@
 const nodemailer = require("nodemailer")
+const jwt = require("jsonwebtoken")
 const User = require('../models/user')
 const EmailVerificationToken = require('../models/emailVerificationToken')
 const PasswordResetToken = require('../models/passwordResetToken')
@@ -6,7 +7,7 @@ const { isValidObjectId } = require("mongoose")
 const passwordResetToken = require("../models/passwordResetToken")
 
 //using async await for saving the data to DB
-const create = async (req, res) => {
+exports.create = async (req, res) => {
 
     // console.log(req.body) //req deals with the frontend requesting , i.e. the data coming from frontend
     const { username, email, password } = req.body // destructuring to extract username, email, and received_password from the req.body object. It assumes that the request body contains these properties.
@@ -45,8 +46,8 @@ const create = async (req, res) => {
         host: "sandbox.smtp.mailtrap.io",
         port: 2525,
         auth: {
-            user: "73aefe65003d1d",
-            pass: "f0f387629fe316"
+            user: process.env.MAIL_TRAP_USER,
+            pass: process.env.MAIL_TRAP_PASS
         }
     });
     //2. Enterting the data for sending the mail
@@ -67,7 +68,7 @@ const create = async (req, res) => {
 
 
 //Verifying the user
-const verifyEmail = async (req, res) => {
+exports.verifyEmail = async (req, res) => {
     const { userID, OTP } = req.body;
 
     //if the userID is not valid, then mongoDB will sent error
@@ -100,8 +101,8 @@ const verifyEmail = async (req, res) => {
         host: "sandbox.smtp.mailtrap.io",
         port: 2525,
         auth: {
-            user: "73aefe65003d1d",
-            pass: "f0f387629fe316"
+            user: process.env.MAIL_TRAP_USER,
+            pass: process.env.MAIL_TRAP_PASS
         }
     });
 
@@ -120,7 +121,7 @@ const verifyEmail = async (req, res) => {
 
 
 //For reseting the password
-const forgetPassword = async (req, res) => {
+exports.forgetPassword = async (req, res) => {
 
     //checking if the user exists in our DB or not
     const { email } = req.body;
@@ -147,8 +148,8 @@ const forgetPassword = async (req, res) => {
         host: "sandbox.smtp.mailtrap.io",
         port: 2525,
         auth: {
-            user: "73aefe65003d1d",
-            pass: "f0f387629fe316"
+            user: process.env.MAIL_TRAP_USER,
+            pass: process.env.MAIL_TRAP_PASS
         }
     });
 
@@ -167,13 +168,13 @@ const forgetPassword = async (req, res) => {
 
 
 //function to change the password in the DB
-const resetPassword = async (req,res) => {
-    const {newPassword, userID} = req.body
+exports.resetPassword = async (req, res) => {
+    const { newPassword, userID } = req.body
     const user = await User.findById(userID)
-    
+
     //checking if new and old password are same
     const matched = await user.comparePassword(newPassword)
-    if(matched) {return res.status(401).json({error: 'New password cannot be same as the old one.'})}
+    if (matched) { return res.status(401).json({ error: 'New password cannot be same as the old one.' }) }
 
     //if not same then changing the password
     user.password = newPassword
@@ -184,8 +185,8 @@ const resetPassword = async (req,res) => {
         host: "sandbox.smtp.mailtrap.io",
         port: 2525,
         auth: {
-            user: "73aefe65003d1d",
-            pass: "f0f387629fe316"
+            user: process.env.MAIL_TRAP_USER,
+            pass: process.env.MAIL_TRAP_PASS
         }
     });
 
@@ -198,11 +199,43 @@ const resetPassword = async (req,res) => {
             <h5>Happy Watching...❤️</h5>
         `
     })
-    
+
     //displaying success message on frontend
-    res.status(201).json({message: 'Password reset successful!'})
+    res.status(201).json({ message: 'Password reset successful!' })
     //after successful reset, delete the token used for verification of password reset
     await PasswordResetToken.findByIdAndDelete(req.resetToken._id)
 }
 
-module.exports = { create, verifyEmail, forgetPassword, resetPassword}
+// Login/ Sign-in
+exports.userSignIn = async (req, res) => {
+    //inputs will be email and password by the user
+    //we need to store this entered data
+    const { email, password } = req.body;
+
+    //find the user that corresponds to this email
+    const user = await User.findOne({email})
+    //if no such user exists
+    if (!user) { return res.status(404).json({ error: 'User not found!' }) }
+
+    //if user exists we need to compare the password with our DB
+    //using our compare password function defined in models/user.js
+    const matched = await user.comparePassword(password)
+    //if not matched
+    if (!matched) { return res.status(401).json({ error: 'UhOh! Incorrect Password.' }) }
+
+    //if password is correct, use JWT to 
+    // const tokenName = jwt.sign(payload, secretKey, options)
+    const jwtToken = jwt.sign({ userID: user._id }, process.env.SECRET_KEY, { expiresIn: '7h' })
+
+    //returning the user to the frontend
+    const { name, _id } = user; //just some destructuring
+
+    res.status(201).json({
+        user: {
+            id: _id,
+            name: name,
+            email: email,
+            token: jwtToken
+        }
+    })
+}
