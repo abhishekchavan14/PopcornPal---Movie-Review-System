@@ -63,7 +63,13 @@ exports.create = async (req, res) => {
     })
 
     // res.json({user: req.body}) --> res deals with the response, i.e. the result the backend sends to frontend
-    res.status(201).json({ message: "OTP sent to your Email for Verification!" })
+    res.status(201).json({
+        user: {
+            id:newUser._id,
+            username:newUser.username,
+            email:newUser.email
+        }
+    })
 }
 
 
@@ -213,7 +219,7 @@ exports.userSignIn = async (req, res) => {
     const { email, password } = req.body;
 
     //find the user that corresponds to this email
-    const user = await User.findOne({email})
+    const user = await User.findOne({ email })
     //if no such user exists
     if (!user) { return res.status(404).json({ error: 'User not found!' }) }
 
