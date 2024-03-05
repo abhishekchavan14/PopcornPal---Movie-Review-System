@@ -2,12 +2,15 @@ import React, { useState } from "react";
 
 import { IoMdMenu, IoMdClose } from "react-icons/io";
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "../hooks";
 
 export default function Navbar() {
   const location = useLocation(); //used in keeping the Home,About etc in Navbar active when we on that corresponding path
 
   //to toggle between the menu and close icon (for mobile devices)
   const [nav, setNav] = useState(false);
+  const { authInfo, handleLogout } = useAuth();
+  const { isLoggedIn } = authInfo;
   function handleMenuClick() {
     setNav(!nav);
   }
@@ -18,7 +21,7 @@ export default function Navbar() {
         <h1 className=" text-3xl font-bold text-primary-red">PopcornPal</h1>
         <ul className="mr-10 text-lg items-center hidden md:flex">
           <li className="mr-8">
-            <Link
+            {isLoggedIn?"":<Link
               to="/"
               className={
                 location.pathname === "/"
@@ -27,10 +30,10 @@ export default function Navbar() {
               }
             >
               Home
-            </Link>
+            </Link>}
           </li>
           <li className="mr-8">
-            <Link
+            {isLoggedIn?"":<Link
               to="/auth/sign-up"
               className={
                 location.pathname === "/auth/sign-up"
@@ -39,31 +42,32 @@ export default function Navbar() {
               }
             >
               Sign up
-            </Link>{" "}
+            </Link>}
           </li>
           <li className="mr-8">
-            <Link
-              to="/auth/log-in"
-              className={
-                location.pathname === "/auth/log-in"
-                  ? "text-primary-red"
-                  : "text-white hover:text-primary-red duration-300"
-              }
-            >
-              Log in
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/About"
-              className={
-                location.pathname === "/About"
-                  ? "text-primary-red"
-                  : "text-white hover:text-primary-red duration-300"
-              }
-            >
-              About
-            </Link>
+            {isLoggedIn ? (
+              <button
+                onClick={handleLogout}
+                className={
+                  location.pathname === "/"
+                    ? "text-primary-red"
+                    : "text-white hover:text-primary-red duration-300"
+                }
+              >
+                Log Out
+              </button>
+            ) : (
+              <Link
+                to="/auth/log-in"
+                className={
+                  location.pathname === "/auth/log-in"
+                    ? "text-primary-red"
+                    : "text-white hover:text-primary-red duration-300"
+                }
+              >
+                Log in
+              </Link>
+            )}
           </li>
         </ul>
         {/*till this was the navbar for large devices*/}
@@ -94,10 +98,11 @@ export default function Navbar() {
               <Link to="/auth/sign-up">Sign Up</Link>
             </li>
             <li className="p-4 border-b border-gray-600 delay-100 duration-300 ease-in">
-              <Link to="/auth/log-in">Log In</Link>
-            </li>
-            <li className="p-4 border-b border-gray-600 delay-150 duration-300 ease-in">
-              <Link to="/about">About</Link>
+              {isLoggedIn ? (
+                <button onClick={handleLogout}>Log Out</button>
+              ) : (
+                <Link to="/auth/log-in">Log In</Link>
+              )}
             </li>
           </ul>
         </div>

@@ -65,9 +65,9 @@ exports.create = async (req, res) => {
     // res.json({user: req.body}) --> res deals with the response, i.e. the result the backend sends to frontend
     res.status(201).json({
         user: {
-            id:newUser._id,
-            username:newUser.username,
-            email:newUser.email
+            id: newUser._id,
+            username: newUser.username,
+            email: newUser.email
         }
     })
 }
@@ -100,7 +100,8 @@ exports.verifyEmail = async (req, res) => {
 
     await EmailVerificationToken.findByIdAndDelete(token._id)
 
-    res.status(201).json({ message: 'Your Email has been Verified!' })
+    const jwtToken = jwt.sign({ userID: user._id }, process.env.SECRET_KEY)
+    res.status(201).json({ user: { id: user._id, username: user.username, email: user.email, token: jwtToken }, message: 'Your Email has been Verified!' })
 
 
     var transport = nodemailer.createTransport({
@@ -229,18 +230,18 @@ exports.userSignIn = async (req, res) => {
     //if not matched
     if (!matched) { return res.status(401).json({ error: 'UhOh! Incorrect Password.' }) }
 
+    const { name, _id, role } = user;
+
     //if password is correct, use JWT to 
     // const tokenName = jwt.sign(payload, secretKey, options)
-    const jwtToken = jwt.sign({ userID: user._id }, process.env.SECRET_KEY, { expiresIn: '7h' })
-
-    //returning the user to the frontend
-    const { name, _id } = user; //just some destructuring
+    const jwtToken = jwt.sign({ userID: user._id }, process.env.SECRET_KEY)
 
     res.status(201).json({
         user: {
             id: _id,
             name: name,
             email: email,
+            role: role,
             token: jwtToken
         }
     })

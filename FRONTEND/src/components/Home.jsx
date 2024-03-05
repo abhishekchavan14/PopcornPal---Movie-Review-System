@@ -1,9 +1,20 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Footer from "./Footer";
-import BackgroundVideo from "./images/Background_Video.mp4"
-import BigLogo from "./images/Big_Logo_2.png"
+import BackgroundVideo from "./images/Background_Video.mp4";
+import BigLogo from "./images/Big_Logo_2.png";
+import { useAuth } from "../hooks";
+import { useNavigate } from "react-router-dom";
 
 export default function Home() {
+  const { handleLogin, authInfo } = useAuth();
+  const {isPending, isLoggedIn} = authInfo
+  const navigate = useNavigate()
+
+  useEffect(()=>{
+    if(isLoggedIn){
+      authInfo.profile?.role==="user"?
+      navigate('/review-movies'):navigate('/admin')}
+  },[isLoggedIn])
   return (
     <div>
       <div
