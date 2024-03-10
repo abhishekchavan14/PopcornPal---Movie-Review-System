@@ -31,7 +31,7 @@ export default function NotificationProvider({ children }) {
     <NotificationContext.Provider value={{ updateNotification }}>
       {children}
       <div className="absolute top-5 w-full flex justify-center z-[-3]">
-        <div className={`p-4 ${notificationClass} rounded-xl popup`}>
+        <div className={`p-4 ${notificationClass} rounded-xl popup z-50`}>
           <p>{notification}</p>
         </div>
       </div>

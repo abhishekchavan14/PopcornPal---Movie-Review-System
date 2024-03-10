@@ -1,6 +1,8 @@
 const { isValidObjectId } = require("mongoose")
 const cloudinary = require("../cloud/index")
 const Movie = require("../models/movie")
+const Review = require("../models/review")
+const { averageRatingPipeline, topRatedMoviesPipeline, getAverageRatings } = require("../utils/helper")
 
 exports.uploadTrailer = async (req, res) => {
   const { file } = req
@@ -173,7 +175,9 @@ exports.getLatestUploads = async (req, res) => {
       id: m._id,
       title: m.title,
       poster: m.poster?.secure_url,
-      trailer: m.trailer?.url
+      trailer: m.trailer?.url,
+      description: m.storyline,
+      genres: m.genres
     }
   })
 
@@ -186,6 +190,7 @@ exports.getSingleMovie = async (req, res) => {
 
   const movie = await Movie.findById(movieId)
 
+  const reviews = await getAverageRatings(movie._id)
 
   const {
     _id: id,
@@ -221,7 +226,27 @@ exports.getSingleMovie = async (req, res) => {
       })),
       poster: poster?.secure_url,
       trailer: trailer?.url,
+      reviews: { ...reviews }
     },
   })
 
+}
+
+exports.getTopRatedMovies = async (req, res) => {
+  const { type = "Movie" } = req.query
+
+  const movies = await Movie.aggregate(topRatedMoviesPipeline(type))
+
+  const mapMovies = async (m) => {
+    const reviews = await getAverageRatings(m._id)
+    return {
+      id: m._id,
+      title: m.title,
+      poster: m.poster,
+      reviews: { ...reviews }
+    }
+  }
+  const topRatedMovies = await Promise.all(movies.map(mapMovies))
+
+  res.json({ movies: topRatedMovies })
 }

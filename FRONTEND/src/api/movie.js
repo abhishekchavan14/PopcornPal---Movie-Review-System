@@ -31,3 +31,32 @@ export const uploadMovie = async (formData) => {
         return { error: error.response.data.error }
     }
 }
+
+export const getTopRatedMovies = async (type) => {
+    try {
+        let endpoint = '/movie/top-rated'
+        if(type) endpoint = endpoint + '?type=' + type
+        const { data } = await client.get(endpoint)
+        return data
+    } catch (error) {
+        return { error: error.response.data.error }
+    }
+}
+
+export const getLatestUploads = async (type) => {
+    try {
+        const { data } = await client.get('/movie/latest-uploads')
+        return data
+    } catch (error) {
+        return { error: error.response.data.error }
+    }
+}
+export const getSingleMovie = async (id) => {
+    try {
+        const { data } = await client.get('/movie/single/' + id)
+        return data
+    } catch (error) {
+        return { error: error.response.data.error }
+    }
+}
+

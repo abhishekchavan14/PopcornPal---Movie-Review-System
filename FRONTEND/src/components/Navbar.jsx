@@ -16,7 +16,7 @@ export default function Navbar() {
   }
 
   return (
-    <div className="bg-primary p-2 shadow-md shadow-black">
+    <div className="bg-primary py-4 pl-2 md:pl-10 shadow-md shadow-black">
       <div className="flex items-center justify-between">
         <h1 className=" text-3xl font-bold text-primary-red">PopcornPal</h1>
         <ul className="mr-10 text-lg items-center hidden md:flex">
@@ -51,7 +51,7 @@ export default function Navbar() {
                 className={
                   location.pathname === "/"
                     ? "text-primary-red"
-                    : "text-white hover:text-primary-red duration-300"
+                    : "text-white hover:text-primary-red duration-300 cursor-pointer"
                 }
               >
                 Log Out
@@ -74,7 +74,7 @@ export default function Navbar() {
         {/*------------------------------------------------------------------------------------------------------------------------------------*/}
         {/*below is the menu bar that is only for smaller devices*/}
         <button
-          className=" text-white justify-end fixed right-5 bg-secondary p-1 rounded-md block md:hidden"
+          className=" text-white justify-end mr-2 right-5 bg-secondary p-1 rounded-md block md:hidden"
           onClick={handleMenuClick}
         >
           {!nav ? (
@@ -87,7 +87,7 @@ export default function Navbar() {
           className={
             !nav
               ? "fixed right-[-100%]"
-              : "fixed right-0 top-14 w-[40%] bg-primary-red text-white ease-in-out duration-300 z-30"
+              : "fixed right-0 top-16 w-[40%] bg-primary-red text-white ease-in-out duration-300 z-30"
           }
         >
           <ul>

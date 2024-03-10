@@ -1,7 +1,7 @@
 const express = require('express')
 const { isAuth, isAdmin } = require('../middlewares/auth')
 const { uploadVideo, uploadImage } = require('../middlewares/multer')
-const { uploadTrailer, createMovie, updateMovie, removeMovie, getLatestUploads, getSingleMovie } = require('../controllers/movies')
+const { uploadTrailer, createMovie, updateMovie, removeMovie, getLatestUploads, getSingleMovie, getTopRatedMovies } = require('../controllers/movies')
 const { parseData } = require('../utils/helper')
 const { validateMovie, validate } = require('../middlewares/validator')
 
@@ -20,5 +20,7 @@ router.delete('/:movieID', isAuth, isAdmin, removeMovie)
 //for users
 router.get('/latest-uploads', getLatestUploads)
 router.get('/single/:movieId', getSingleMovie)
+router.get('/top-rated', getTopRatedMovies)
+
 
 module.exports = router

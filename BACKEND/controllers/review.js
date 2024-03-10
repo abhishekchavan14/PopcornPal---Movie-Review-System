@@ -84,9 +84,10 @@ exports.removeReview = async (req, res) => {
 exports.getReviewsByMovie = async (req, res) => {
 
     const { movieId } = req.params
-
+    console.log("from backend getReviewsByMovie :" + movieId)
     if (!isValidObjectId(movieId)) return res.json({ error: "Invalid Movie ID" })
 
+    // console.log("fine till here")
     //movie.findById will give only ID, to get all the data about the review we need to populate it. Also while populating reviews we need to populate owner inside the review.
     const movie = await Movie.findById(movieId).populate({
         path: "reviews",
@@ -96,14 +97,14 @@ exports.getReviewsByMovie = async (req, res) => {
         }
     }).select('reviews')
 
-    const reviews = movie.reviews.map((r)=>{
-        const {owner, content, rating, _id:reviewId} = r
-        const {username, _id:ownerId} = owner
-
-        return{
-            id:reviewId,
-            owner:{
-                id:ownerId,
+    // console.log("Reviews here"+reviews)
+    const reviews = movie.reviews.map((r) => {
+        const { owner, content, rating, _id: reviewId } = r
+        const { username, _id: ownerId } = owner
+        return {
+            id: reviewId,
+            owner: {
+                id: ownerId,
                 username,
             },
             content,
@@ -112,5 +113,5 @@ exports.getReviewsByMovie = async (req, res) => {
     })
 
 
-    res.json({reviews})
+    res.json({ reviews })
 }

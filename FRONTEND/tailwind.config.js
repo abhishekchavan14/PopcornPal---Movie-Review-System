@@ -12,10 +12,10 @@ export default {
         'dark-subtle' : 'rgba(255,255,255,0.6)',
         'primary-red' : '#FF315B',
         green: '#04E342',
-        blue: '#366D94'
+        blue: '#366D94',
+        golden: "#ffd000"
       }
     },
   },
   plugins: [],
 }
-

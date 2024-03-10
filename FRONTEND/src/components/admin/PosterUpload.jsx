@@ -17,7 +17,7 @@ export default function PosterUpload({onUpload}) {
       <FileUploader
         handleChange={handleChange}
         onTypeError={handleTypeError}
-        types={["jpeg", "jpg", "heif", "heic"]}
+        types={["jpeg", "jpg", "heif", "heic", "png"]}
       >
         <div className="  border-primary-red p-8 rounded-lg flex flex-col items-center justify-center cursor-pointer">
           <RiVideoUploadLine className="text-6xl" />
